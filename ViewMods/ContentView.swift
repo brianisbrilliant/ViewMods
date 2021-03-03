@@ -19,6 +19,44 @@ struct CapsuleText: View {
             .cornerRadius(20)
     }
 }
+// creating our own view modifier
+struct Title: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(.largeTitle)
+            .foregroundColor(.white)
+            .padding()
+            .background(Color.yellow)
+            .clipShape(RoundedRectangle(cornerRadius: 50))
+    }
+}
+// changing ".modifier(Title())" to ".titleStyle()"
+extension View {
+    func titleStyle() -> some View {
+        self.modifier(Title())
+    }
+}
+
+// Creating custom container
+struct GridStack<Content: View>: View {
+    let rows: Int
+    let columns: Int
+    let content: (Int, Int) -> Content
+    
+    var body: some View {
+        VStack {
+            ForEach(0..<rows, id: \.self) { row in
+                HStack {
+                    ForEach(0..<self.columns, id: \.self) { column in
+                        self.content(row, column)
+                    } // end of hstack foreach
+                } // end of hstack
+            } // end of vstack foreach
+        } // end of vstack
+    } // end of body
+} // end of gridStack
+        
+
 
 struct ContentView: View {
     //@State private var counter = 0
@@ -30,11 +68,16 @@ struct ContentView: View {
 //    var blurButton = Button("asdf")
     
     var body: some View {
-        VStack {
+        
+        VStack(spacing: 20) {
+            GridStack(rows: 3, columns: 3) { row, col in
+                Text("R\(row), C\(col)   ")
+            }
             CapsuleText(givenText: "Hello World")
             CapsuleText(givenText: "Game Over")
             motto1
                 .bold()
+                .titleStyle()
             Button("Hello world") {
                 self.useRedText.toggle()     // switch the boolean's value
                 self.blurAmount += 1
